@@ -76,14 +76,14 @@ export function PlayerBar({
             <button 
               onClick={onPrev}
               disabled={!onPrev}
-              className="text-slate-400 hover:text-sky-500 transition-colors disabled:opacity-30"
+              className="text-slate-400 hover:text-sky-500 transition-colors disabled:opacity-30 cursor-pointer"
             >
               <SkipBack className="w-5 h-5" />
             </button>
             
             <button 
               onClick={onPlayPause}
-              className="w-10 h-10 rounded-full bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center transition-transform active:scale-95 shadow-lg shadow-sky-500/30"
+              className="w-10 h-10 rounded-full bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center transition-transform active:scale-95 shadow-lg shadow-sky-500/30 cursor-pointer"
             >
               {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
             </button>
@@ -91,7 +91,7 @@ export function PlayerBar({
             <button 
               onClick={onNext}
               disabled={!onNext}
-              className="text-slate-400 hover:text-sky-500 transition-colors disabled:opacity-30"
+              className="text-slate-400 hover:text-sky-500 transition-colors disabled:opacity-30 cursor-pointer"
             >
               <SkipForward className="w-5 h-5" />
             </button>
@@ -126,7 +126,7 @@ export function PlayerBar({
           <div className="flex items-center gap-2 group w-32">
             <button 
               onClick={() => onVolumeChange(volume === 0 ? 1 : 0)}
-              className="text-slate-400 hover:text-sky-500 transition-colors"
+              className="text-slate-400 hover:text-sky-500 transition-colors cursor-pointer"
             >
               {volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </button>

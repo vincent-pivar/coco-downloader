@@ -12,12 +12,7 @@ export function Navbar() {
     <>
       <nav className="fixed top-[37px] left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-sky-100 z-50 px-4 md:px-8 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-sky-500 rounded-xl flex items-center justify-center shadow-lg shadow-sky-200 group-hover:rotate-12 transition-transform">
-            <Music className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-blue-600">
-            COCO音乐
-          </span>
+          <img src="/images/cherry-logo.svg" alt="Logo" className="h-10 w-auto transition-transform" />
         </Link>
         
         <div className="flex items-center gap-6">

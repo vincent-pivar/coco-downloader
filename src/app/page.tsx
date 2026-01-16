@@ -133,8 +133,8 @@ export default function Home() {
     try {
       // 双重保险：再次清理文件名中的多余空白
       const cleanTitle = item.title.replace(/\s+/g, ' ').trim();
-      const cleanArtist = item.artist.replace(/\s+/g, ' ').trim();
-      const filename = `${cleanTitle} - ${cleanArtist}.mp3`;
+      // const cleanArtist = item.artist.replace(/\s+/g, ' ').trim();
+      const filename = `${cleanTitle}.mp3`;
       
       const res = await fetch(`/api/download?id=${item.id}&provider=${item.provider}&filename=${encodeURIComponent(filename)}`);
       
@@ -305,6 +305,22 @@ export default function Home() {
                  ))}
               </motion.div>
             )}
+        </AnimatePresence>
+
+        {/* Footer Info - Only show when not searched */}
+        <AnimatePresence>
+          {!searched && results.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-16 text-center text-slate-400 text-sm"
+            >
+              <p>© 2024 COCO Music. Powered by Next.js & React.</p>
+              <p className="mt-2 text-xs text-slate-300">仅供个人学习交流使用，请勿用于商业用途</p>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Results List */}

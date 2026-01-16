@@ -88,10 +88,35 @@ export class GequbaoProvider implements MusicProvider {
           if (title.includes(sep)) {
             const parts = title.split(sep, 2).map(s => s.trim());
             if (parts.length === 2) {
-              // 注意：此处不直接修改title，保持原标题显示，但在数据中记录
+              // 分离标题和歌手
               artist = parts[1];
+              // 这是一个临时变量，我们需要修改 items.push 里的 title
             }
           }
+        }
+
+        // 如果标题中包含歌手名（通常格式为 "歌名 - 歌手"），再次清理标题
+        // 无论 artist 是从哪里获取的，如果 title 包含 " - artist" 或 "-artist"，都应该去掉
+        if (artist) {
+            const sep1 = ` - ${artist}`;
+            const sep2 = `-${artist}`;
+            if (title.includes(sep1)) {
+                items.push({
+                    id,
+                    title: title.replace(sep1, '').trim(),
+                    artist: artist,
+                    provider: this.name,
+                });
+                return;
+            } else if (title.includes(sep2)) {
+                items.push({
+                    id,
+                    title: title.replace(sep2, '').trim(),
+                    artist: artist,
+                    provider: this.name,
+                });
+                return;
+            }
         }
 
         items.push({

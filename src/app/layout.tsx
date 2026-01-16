@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "COCO音乐下载站",
   description: "简约纯净的音乐下载工具",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default function RootLayout({
