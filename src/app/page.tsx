@@ -9,6 +9,7 @@ import { PlayerBar } from "@/components/PlayerBar";
 
 export default function Home() {
   const [query, setQuery] = useState("");
+  const [provider, setProvider] = useState("all");
   const [results, setResults] = useState<MusicItem[]>([]);
   const [loading, setLoading] = useState(false);
   
@@ -66,7 +67,7 @@ export default function Home() {
     setSelectedIds(new Set());
     
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&provider=${provider}`);
       const data = await res.json();
       setResults(data.items || []);
     } catch (err) {
@@ -97,7 +98,7 @@ export default function Home() {
       setPlaying(false); // Wait for load
       setCurrentTime(0);
 
-      const res = await fetch(`/api/url?id=${item.id}`);
+      const res = await fetch(`/api/url?id=${item.id}&provider=${item.provider || 'gequbao'}`);
       const data = await res.json();
       
       if (data.url && audioRef.current) {
@@ -136,7 +137,7 @@ export default function Home() {
       // const cleanArtist = item.artist.replace(/\s+/g, ' ').trim();
       const filename = `${cleanTitle}.mp3`;
       
-      const res = await fetch(`/api/download?id=${item.id}&provider=${item.provider}&filename=${encodeURIComponent(filename)}`);
+      const res = await fetch(`/api/download?id=${item.id}&provider=${item.provider || 'gequbao'}&filename=${encodeURIComponent(filename)}`);
       
       if (!res.ok) throw new Error("Download failed");
       
@@ -206,7 +207,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-[calc(100vh-64px)] bg-slate-50 text-slate-800 font-sans selection:bg-sky-100 pb-32">
+    <main className="min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans selection:bg-sky-100 dark:selection:bg-sky-900 pb-32 transition-colors duration-300">
       <div className="container mx-auto px-4 py-12 flex flex-col items-center">
         
         {/* Header Area */}
@@ -218,30 +219,53 @@ export default function Home() {
           )}
         >
           <div className="flex items-center gap-3 mb-4">
-             <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-600 text-xs font-bold tracking-wider uppercase">
+             <span className="px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 text-xs font-bold tracking-wider uppercase">
                v2.0 Beta
              </span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-slate-800 tracking-tight mb-4 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-slate-800 dark:text-slate-100 tracking-tight mb-4 text-center">
             COCO音乐下载站
           </h1>
-          <p className="text-slate-500 text-lg mb-8 max-w-lg text-center leading-relaxed hidden md:block">
+          <p className="text-slate-500 dark:text-slate-400 text-lg mb-8 max-w-lg text-center leading-relaxed hidden md:block">
             您的专属高品质音乐获取助手，支持多平台搜索，
             <br />
             极速解析，批量下载，纯净无广。
           </p>
           
+          {/* Provider Selector */}
+          <div className="flex justify-center mb-6 gap-3">
+            {[
+              { id: 'all', name: '全网聚合' },
+              { id: 'gequbao', name: '渠道1' },
+              { id: 'qqmp3', name: '渠道2' }
+            ].map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setProvider(p.id)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer",
+                  provider === p.id 
+                    ? "bg-sky-500 text-white shadow-lg shadow-sky-200 dark:shadow-none ring-2 ring-sky-200 dark:ring-sky-800 ring-offset-2 dark:ring-offset-slate-900" 
+                    : "bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-sky-200 dark:hover:border-sky-700"
+                )}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+          
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="relative w-full max-w-2xl group mb-6">
-            <div className="absolute inset-0 bg-sky-200 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-            <div className="relative bg-white shadow-xl shadow-slate-200/50 rounded-full flex items-center p-2 pr-2 border border-slate-100 transition-transform duration-300 hover:scale-[1.01]">
-              <Search className="w-6 h-6 text-slate-400 ml-4" />
+            <div className="absolute inset-0 bg-sky-200 dark:bg-sky-900 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+            <div className="relative bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none rounded-full flex items-center p-2 pr-2 border border-slate-100 dark:border-slate-800 transition-transform duration-300 hover:scale-[1.01]">
+              <Search className="w-6 h-6 text-slate-400 dark:text-slate-500 ml-4" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="搜索歌曲、歌手..."
-                className="flex-1 bg-transparent border-none outline-none px-4 text-lg text-slate-700 placeholder:text-slate-300 h-12"
+                className="flex-1 bg-transparent border-none outline-none px-4 text-lg text-slate-700 dark:text-slate-200 placeholder:text-slate-300 dark:placeholder:text-slate-600 h-12"
               />
               <button
                 type="submit"
@@ -260,9 +284,9 @@ export default function Home() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex flex-wrap justify-center gap-3 text-sm text-slate-500"
+                className="flex flex-wrap justify-center gap-3 text-sm text-slate-500 dark:text-slate-400"
               >
-                <div className="flex items-center gap-1 text-slate-400">
+                <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500">
                   <Flame className="w-4 h-4 text-orange-500" />
                   <span>热门搜索:</span>
                 </div>
@@ -270,7 +294,7 @@ export default function Home() {
                   <span 
                     key={tag}
                     onClick={() => setQuery(tag)}
-                    className="px-3 py-1 bg-white border border-slate-100 rounded-full cursor-pointer hover:bg-sky-50 hover:text-sky-600 hover:border-sky-100 transition-colors shadow-sm"
+                    className="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-full cursor-pointer hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-100 dark:hover:border-sky-900 transition-colors shadow-sm dark:shadow-none"
                   >
                     {tag}
                   </span>
@@ -295,12 +319,12 @@ export default function Home() {
                    { icon: Zap, title: "极速解析", desc: "毫秒级解析响应，多线程并发下载，拒绝等待" },
                    { icon: ShieldCheck, title: "纯净无广", desc: "无任何广告干扰，还原最纯粹的音乐体验" }
                  ].map((feature, i) => (
-                   <div key={i} className="bg-white/50 backdrop-blur-sm border border-slate-100 p-6 rounded-2xl flex flex-col items-center text-center hover:bg-white hover:shadow-lg hover:shadow-slate-100/50 transition-all duration-300 group cursor-default">
-                     <div className="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center text-sky-500 mb-4 group-hover:scale-110 transition-transform duration-300">
+                   <div key={i} className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-100 dark:border-slate-800 p-6 rounded-2xl flex flex-col items-center text-center hover:bg-white dark:hover:bg-slate-900 hover:shadow-lg hover:shadow-slate-100/50 dark:hover:shadow-none transition-all duration-300 group cursor-default">
+                     <div className="w-12 h-12 bg-sky-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-sky-500 dark:text-sky-400 mb-4 group-hover:scale-110 transition-transform duration-300">
                        <feature.icon className="w-6 h-6" />
                      </div>
-                     <h3 className="text-lg font-bold text-slate-800 mb-2">{feature.title}</h3>
-                     <p className="text-slate-500 text-sm leading-relaxed">{feature.desc}</p>
+                     <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">{feature.title}</h3>
+                     <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{feature.desc}</p>
                    </div>
                  ))}
               </motion.div>
@@ -315,10 +339,10 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ delay: 0.2 }}
-              className="mt-16 text-center text-slate-400 text-sm"
+              className="mt-16 text-center text-slate-400 dark:text-slate-500 text-sm"
             >
               <p>© 2024 COCO Music. Powered by Next.js & React.</p>
-              <p className="mt-2 text-xs text-slate-300">仅供个人学习交流使用，请勿用于商业用途</p>
+              <p className="mt-2 text-xs text-slate-300 dark:text-slate-600">仅供个人学习交流使用，请勿用于商业用途</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -332,7 +356,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-20 text-slate-400"
+                className="flex flex-col items-center justify-center py-20 text-slate-400 dark:text-slate-500"
               >
                 <Loader2 className="w-10 h-10 animate-spin mb-4 text-sky-400" />
                 <p>正在寻找动听旋律...</p>
@@ -343,10 +367,10 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-24"
+                className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden mb-24"
               >
                 {/* List Header */}
-                <div className="grid grid-cols-[50px_1fr_1fr_100px] md:grid-cols-[50px_2fr_1.5fr_120px] gap-4 p-4 border-b border-slate-50 bg-slate-50/50 text-sm font-medium text-slate-500">
+                <div className="grid grid-cols-[50px_1fr_1fr_100px] md:grid-cols-[50px_2fr_1.5fr_120px] gap-4 p-4 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-sm font-medium text-slate-500 dark:text-slate-400">
                   <div className="flex justify-center items-center">
                     <button 
                       onClick={toggleAll}
@@ -354,7 +378,7 @@ export default function Home() {
                         "w-5 h-5 rounded border flex items-center justify-center transition-colors cursor-pointer",
                         selectedIds.size === results.length && results.length > 0
                           ? "bg-sky-500 border-sky-500 text-white" 
-                          : "border-slate-300 hover:border-sky-400"
+                          : "border-slate-300 dark:border-slate-600 hover:border-sky-400 dark:hover:border-sky-500"
                       )}
                     >
                       {selectedIds.size === results.length && results.length > 0 && <Check className="w-3.5 h-3.5" />}
@@ -366,7 +390,7 @@ export default function Home() {
                 </div>
 
                 {/* List Items */}
-                <div className="divide-y divide-slate-50">
+                <div className="divide-y divide-slate-50 dark:divide-slate-800">
                   {results.map((item) => {
                     const isActive = activeMusic?.id === item.id;
                     const isSelected = selectedIds.has(item.id);
@@ -376,19 +400,20 @@ export default function Home() {
                         key={item.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
+                        onDoubleClick={() => handlePlay(item)}
                         className={cn(
-                          "grid grid-cols-[50px_1fr_1fr_100px] md:grid-cols-[50px_2fr_1.5fr_120px] gap-4 p-4 items-center hover:bg-slate-50 transition-colors group",
-                          isActive && "bg-sky-50/50"
+                          "grid grid-cols-[50px_1fr_1fr_100px] md:grid-cols-[50px_2fr_1.5fr_120px] gap-4 p-4 items-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group cursor-pointer select-none active:scale-[0.99] rounded-xl",
+                          isActive && "bg-sky-50/50 dark:bg-sky-900/20"
                         )}
                       >
                         <div className="flex justify-center items-center">
                           <button 
-                            onClick={() => toggleSelection(item.id)}
+                            onClick={(e) => { e.stopPropagation(); toggleSelection(item.id); }}
                             className={cn(
                               "w-5 h-5 rounded border flex items-center justify-center transition-colors cursor-pointer",
                               isSelected 
                                 ? "bg-sky-500 border-sky-500 text-white" 
-                                : "border-slate-300 hover:border-sky-400"
+                                : "border-slate-300 dark:border-slate-600 hover:border-sky-400 dark:hover:border-sky-500"
                             )}
                           >
                             {isSelected && <Check className="w-3.5 h-3.5" />}
@@ -397,13 +422,13 @@ export default function Home() {
 
                         <div className="flex items-center gap-3 overflow-hidden">
                           <div 
-                            onClick={() => handlePlay(item)}
-                            className="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0 cursor-pointer relative group/cover"
+                            onClick={(e) => { e.stopPropagation(); handlePlay(item); }}
+                            className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden flex-shrink-0 cursor-pointer relative group/cover"
                           >
                             {item.cover ? (
                               <img src={item.cover} alt="" className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-slate-400">
+                              <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500">
                                 <Music className="w-5 h-5" />
                               </div>
                             )}
@@ -420,20 +445,20 @@ export default function Home() {
                           </div>
                           <span className={cn(
                             "font-medium truncate",
-                            isActive ? "text-sky-600" : "text-slate-700"
+                            isActive ? "text-sky-600 dark:text-sky-400" : "text-slate-700 dark:text-slate-200"
                           )}>
                             {item.title}
                           </span>
                         </div>
 
-                        <div className="text-slate-500 truncate text-sm">
+                        <div className="text-slate-500 dark:text-slate-400 truncate text-sm">
                           {item.artist}
                         </div>
 
                         <div className="flex justify-end pr-2">
                           <button
-                            onClick={() => downloadOne(item)}
-                            className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-full transition-colors cursor-pointer"
+                            onClick={(e) => { e.stopPropagation(); downloadOne(item); }}
+                            className="p-2 text-slate-400 dark:text-slate-500 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-slate-800 rounded-full transition-colors cursor-pointer"
                             title="下载"
                           >
                             <Download className="w-5 h-5" />
@@ -448,7 +473,7 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-20 text-slate-400"
+                className="text-center py-20 text-slate-400 dark:text-slate-500"
               >
                 <p>未找到相关歌曲，换个关键词试试？</p>
               </motion.div>
@@ -466,17 +491,17 @@ export default function Home() {
             exit={{ y: 100, opacity: 0 }}
             className="fixed bottom-24 left-0 right-0 flex justify-center z-40 pointer-events-none"
           >
-            <div className="bg-white shadow-xl shadow-slate-200/50 border border-slate-100 rounded-full px-6 py-3 flex items-center gap-6 pointer-events-auto">
-              <span className="text-sm font-medium text-slate-600">
-                已选择 <span className="text-sky-600 font-bold">{selectedIds.size}</span> 首歌曲
+            <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 rounded-full px-6 py-3 flex items-center gap-6 pointer-events-auto">
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                已选择 <span className="text-sky-600 dark:text-sky-400 font-bold">{selectedIds.size}</span> 首歌曲
               </span>
               
-              <div className="h-4 w-px bg-slate-200"></div>
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
 
               <button 
                 onClick={handleBatchDownload}
                 disabled={downloadingCount > 0}
-                className="flex items-center gap-2 text-sky-600 hover:text-sky-700 font-medium text-sm transition-colors disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-medium text-sm transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {downloadingCount > 0 ? (
                   <>
@@ -493,7 +518,7 @@ export default function Home() {
 
               <button 
                 onClick={() => setSelectedIds(new Set())}
-                className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
