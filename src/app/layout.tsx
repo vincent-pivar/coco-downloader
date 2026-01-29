@@ -41,7 +41,7 @@ export default function RootLayout({
         <div className="sticky top-0 z-[60] w-full flex flex-col">
           {/* Announcement Bar */}
           <div className="w-full bg-orange-50/90 dark:bg-orange-950/90 border-b border-orange-100 dark:border-orange-900 px-4 py-2 text-center text-xs sm:text-sm text-orange-800 dark:text-orange-200 flex flex-wrap items-center justify-center gap-1 backdrop-blur-sm transition-colors duration-300">
-            <span>本站默认提供完整的下载功能，若需完整体验第三方软件CoCoMusic，请访问</span>
+            <span>本站默认提供完整的下载功能</span>
             <a 
               href="https://coco.markqq.com" 
               target="_blank" 
